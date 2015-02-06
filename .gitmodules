@@ -1,3 +1,9 @@
 [submodule "js/libs/Material"]
 	path = js/libs/Material
 	url = https://github.com/Dogfalo/materialize.git
+[submodule "js/libs/WaveSufer"]
+	path = js/libs/WaveSufer
+	url = https://github.com/katspaugh/wavesurfer.js
+[submodule "js/libs/RecordRTC"]
+	path = js/libs/RecordRTC
+	url = https://github.com/muaz-khan/RecordRTC.git
