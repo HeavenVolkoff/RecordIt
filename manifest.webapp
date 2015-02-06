@@ -1,7 +1,7 @@
 {
-  "version": "0.2.0",
+  "version": "0.0.1",
   "name": "Zipper",
-  "description": "Demonstrates how to use permissions to load remote content",
+  "description": "A File Explorer focused in packing and unpacking zip and rar files",
   "launch_path": "/index.html",
   "icons": {
     "16": "/img/icons/icon16x16.png",
@@ -10,28 +10,11 @@
     "128": "/img/icons/icon128x128.png"
   },
   "developer": {
-    "name": "Your name",
-    "url": "http://example.com"
+    "name": "Vítor Augusto da Silva Vasconcellos"
   },
   "type": "privileged",
   "permissions": {
-    "systemXHR": {
-      "description": "Required to load remote content"
-    }
+    "device-storage:sdcard":{ "access": "readwrite" }
   },
-  "installs_allowed_from": [
-    "*"
-  ],
-  "locales": {
-    "es": {
-      "name": "Aplicación privilegiada",
-      "description": "Demuestra cómo utilizar permisos para cargar contenido remoto",
-      "permissions": {
-        "systemXHR": {
-          "description": "Requerido para cargar contenido remoto"
-        }
-      }
-    }
-  },
-  "default_locale": "en"
+  "installs_allowed_from": ["*"]
 }

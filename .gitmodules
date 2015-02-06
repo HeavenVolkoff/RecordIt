@@ -1,0 +1,9 @@
+[submodule "js/libs/ZipJs"]
+	path = js/libs/ZipJs
+	url = https://github.com/gildas-lormeau/zip.js
+[submodule "js/libs/RarJs"]
+	path = js/libs/RarJs
+	url = https://github.com/43081j/rar.js
+[submodule "js/libs/Material"]
+	path = js/libs/Material
+	url = https://github.com/Dogfalo/materialize.git

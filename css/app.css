@@ -1,49 +1,184 @@
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+}
+
 html, body {
-  margin: 0;
-  padding: 0.5rem;
+    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+    height:100%;
+
+    width:100%;
+    margin:0;
+    padding:0;
 }
 
-body {
-  font-size: 1rem;
-  background: #fff;
+body{
+    background-color: #1565c0;
 }
 
-h1, h2 {
-  margin: 0 0 1rem 0;
+p {
+    margin: 0;
 }
 
-h2 {
-  font-size: 1.25rem;
+fieldset {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
 }
 
-#error {
-  color: #f00;
-  font-family: monospace;
-  transition: all 1s;
+legend {
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin-bottom: 20px;
+    font-size: 21px;
+    line-height: inherit;
+    color: #333;
+    border: 0;
+    border-bottom: 0;
 }
 
-form {
-  display: flex;
+ul li{
+    padding: 0 !important;
 }
 
-input, button, code, p {
-  font-size: inherit;
+ul li:hover{
+    background-color: transparent !important;
 }
 
-#results {
-  background: #ccc;
-  margin-top: 1.5rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  transition: all 1s;
-  overflow-x: hidden;
+ul li a{
+    width: 100%;
 }
 
-#results:before {
-  position: absolute;
-  display: inline-block;
-  border: 1rem solid transparent;
-  border-bottom: 1rem solid #ccc;
-  margin-top: -3rem;
-  content: '';
+::-webkit-input-placeholder {
+    font-size: 18px !important;
+}
+
+:-moz-placeholder{
+    font-size: 18px !important;
+}
+
+::-moz-placeholder {
+    font-size: 18px !important;
+}
+
+:-ms-input-placeholder{
+    font-size: 18px !important;
+}
+
+/*===================== Materialie Add-on ===========================*/
+
+.alert {
+    border: 0;
+    border-radius: 0;
+    padding: 15px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.alert-danger {
+    background-color: #f44336;
+    border-color: #ebccd1;
+}
+
+.alert-dismissable, .alert-dismissible {
+    padding-right: 35px;
+}
+
+.alert-dismissable .close, .alert-dismissible .close {
+    position: relative;
+    top: -2px;
+    right: -21px;
+    color: inherit;
+}
+
+.close{
+    float: right;
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    filter: alpha(opacity=20);
+    opacity: .2;
+}
+
+button.close{
+    -webkit-appearance: none;
+    padding: 0;
+    cursor: pointer;
+    background: 0 0;
+    border: 0;
+}
+
+.collection{
+    border: 0 !important;
+    background-color: transparent !important;
+}
+
+.collection-item{
+    position: relative !important;
+    padding-left: 72px !important;
+}
+
+.collection-item .action{
+    left: 8px;
+    font-size: 28px;
+    position: absolute;
+    height: 56px;
+    width: 56px;
+    background: rgba(0,0,0,.25);
+    border-radius: 100%;
+    text-align: center;
+    line-height: 56px;
+    color: white;
+}
+
+.collection-item .title{
+    font-size: 20px;
+    line-height: 56px;
+    color: inherit;
+}
+
+/*=================== Common CSS =====================*/
+
+a.button-collapse.top-nav.full {
+    line-height: 55px;
+}
+
+a.button-collapse.top-nav {
+    position: absolute;
+    left: 0;
+    top: 0;
+    float: none;
+    margin-left: 1.5rem;
+    color: #FFF;
+    font-size: 25px;
+    z-index: 2;
+}
+
+#slide-out a {
+    font-size: 1.5rem;
+}
+
+#slide-out a i {
+    font-size: inherit;
+    margin-right: 10px;
+}
+
+ul.side-nav.fixed li.logo {
+    text-align: center;
+    border-bottom: 1px solid #DDD;
+}
+
+ul.side-nav.fixed li {
+    border-bottom: 1px solid #DDD;
+}
+
+#front-page-logo {
+    pointer-events: none;
+    display: inline-block;
+    margin-bottom: -28px;
 }
