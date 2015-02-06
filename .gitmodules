@@ -7,3 +7,12 @@
 [submodule "js/libs/RecordRTC"]
 	path = js/libs/RecordRTC
 	url = https://github.com/muaz-khan/RecordRTC.git
+[submodule "js/libs/Async"]
+	path = js/libs/Async
+	url = https://github.com/caolan/async.git
+[submodule "js/libs/Hammer"]
+	path = js/libs/Hammer
+	url = https://github.com/hammerjs/hammer.js.git
+[submodule "js/libs/Hammer.jQuery"]
+	path = js/libs/Hammer.jQuery
+	url = https://github.com/hammerjs/jquery.hammer.js
