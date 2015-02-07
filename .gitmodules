@@ -16,3 +16,6 @@
 [submodule "js/libs/MSR"]
 	path = js/libs/MSR
 	url = https://github.com/streamproc/MediaStreamRecorder.git
+[submodule "js/libs/Dragend"]
+	path = js/libs/Dragend
+	url = https://github.com/Stereobit/dragend.git

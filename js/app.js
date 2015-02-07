@@ -22,16 +22,88 @@ navigator.sayswho= (function(){
 	'use strict';
 
 	var controller = {
+		fileReader: new FileReader(),
+
 		changeText: null,
+
+		audioListHtml: function(title){
+			return  '<li class="audioItem" data-title="' + title + '">' +
+						'<div  class="collapsible-header"><i class="mdi-device-multitrack-audio"></i>' + title + '</div>' +
+						'<div class="collapsible-body center-align">' +
+							'<div id="' + title + '-wave"></div>' +
+							'<button class="btn waves-effect waves-light audioPlayBtn amber darken-4" type="submit" name="action">Play' +
+								'<i class="mdi-av-play-arrow right"></i>' +
+							'/button>' +
+						'</div>' +
+					'</li>';
+		},
+
+		loadingHtml:    '<div class="loading full-size valign-wrapper" style="position: absolute; background-color: white;top: 0;z-index: 100000;">' +
+							'<div class="valign center-align">' +
+								'<div class="preloader-wrapper small active" style="margin-top: 13px; margin-right: 10px; float:left">' +
+									'<div class="spinner-layer spinner-blue">' +
+										'<div class="circle-clipper left">' +
+											'<div class="circle"></div>' +
+											'</div><div class="gap-patch">' +
+											'<div class="circle"></div>' +
+											'</div><div class="circle-clipper right">' +
+											'<div class="circle"></div>' +
+										'</div>' +
+									'</div>' +
+									'<div class="spinner-layer spinner-red">' +
+										'<div class="circle-clipper left">' +
+											'<div class="circle"></div>' +
+											'</div><div class="gap-patch">' +
+											'<div class="circle"></div>' +
+											'</div><div class="circle-clipper right">' +
+											'<div class="circle"></div>' +
+										'</div>' +
+									'</div>' +
+									'<div class="spinner-layer spinner-yellow">' +
+										'<div class="circle-clipper left">' +
+											'<div class="circle"></div>' +
+											'</div><div class="gap-patch">' +
+											'<div class="circle"></div>' +
+											'</div><div class="circle-clipper right">' +
+											'<div class="circle"></div>' +
+										'</div>' +
+									'</div>' +
+									'<div class="spinner-layer spinner-green">' +
+										'<div class="circle-clipper left">' +
+											'<div class="circle"></div>' +
+											'</div><div class="gap-patch">' +
+											'<div class="circle"></div>' +
+											'</div><div class="circle-clipper right">' +
+											'<div class="circle"></div>' +
+										'</div>' +
+									'</div>' +
+								'</div>' +
+								'<h4 style="float: left">Loading...</h4>' +
+							'</div>' +
+						'</div>',
 
 		/**
 		 * DOMContentLoaded Listener
 		 */
 
 		domLoaded: function() {
-			/*SideBar init*/
+			/* Dragend init */
+			$("main").find('.container').dragend();
+
+			/* SideBar init */
 			$(".button-collapse").sideNav();
 			$('.collapsible').collapsible();
+
+			/* Hammer Events (need to be after Dragend init) */
+			$('#micBtn').hammer().on('tap', function(){
+				console.log();
+				if(app.Mic.waveMic.active){
+					controller.stopRecording();
+				}else{
+					window.console.info('Start Microphone');
+					app.Mic.waveMic.start();
+				}
+			});
 
 			/* WaveForm init */
 			app.Mic.waveSurfer.init({
@@ -47,6 +119,22 @@ navigator.sayswho= (function(){
 			app.Mic.waveMic.init({
 				wavesurfer: app.Mic.waveSurfer
 			});
+
+			/* Check if it already has recordings in folder */
+
+			//if(app.sdCard){
+			//	var request = app.sdCard.enumerate(app.folder);
+			//
+			//	request.onsucess = function(){
+			//		if(this.result){
+			//			var file =
+			//		}
+			//	};
+			//
+			//	request.onerror = function(){
+			//
+			//	}
+			//}
 		},
 
 		startRecording: function(stream){
@@ -118,6 +206,9 @@ navigator.sayswho= (function(){
 							window.console.error(error);
 
 							controller.stopRecording(error);
+						}else{
+							console.trace();
+							console.error(error);
 						}
 					}
 				);
@@ -127,13 +218,27 @@ navigator.sayswho= (function(){
 		},
 
 		stopRecording: function(error){
+			app.Mic.recorder.stop();
 			delete app.Mic.currentRecord;
 			delete app.Mic.audioStream;
 
 			app.Mic.currentRecord = undefined;
 			app.Mic.audioStream = undefined;
 
+			app.Mic.waveMic.stop();
 			app.Mic.waveSurfer.empty();
+
+			var noRecords = $('.noRecord');
+			if(noRecords.length > 0){
+				noRecords.remove();
+			}
+
+			var recordName = app.Mic.currentRecordName;
+			var recordHtml = $(controller.audioListHtml(recordName)).data('recordName', recordName);
+			window.console.log(recordHtml);
+
+			$('.audioList').append(recordHtml);
+			$('.audioItem').hammer().off('tap').hammer().on('tap', controller.requestFile);
 
 			$('#micBtn').find('i').removeClass('mdi-av-mic-off').addClass("mdi-av-mic");
 			$('.record-text').text('Record Stopped');
@@ -142,6 +247,62 @@ navigator.sayswho= (function(){
 				controller.changeText = null;
 				$('.record-text').text('Start Recording');
 			}, 2000);
+		},
+
+		requestFile: function(){
+			if(app.sdCard){
+				var self = $(this);
+				var fileName = self.data('title');
+				self.find('.collapsible-body').append(controller.loadingHtml);
+
+				if(app.audio.init){
+					app.audio.waveSurfer.destroy();
+				}else{
+					app.audio.init = true;
+				}
+
+				window.console.log('#'+fileName+'-wave');
+
+				app.audio.waveSurfer.init({
+					container     : '#'+fileName+'-wave',
+					waveColor     : '#080808',
+					pixelRatio: 1
+				});
+
+				async.waterfall(
+					[
+						function(callback){
+							var fileHandler = app.sdCard.getEditable(app.folderName + fileName);
+
+							fileHandler.onsuccess = function(){
+								callback(null, this.result);
+							};
+
+							fileHandler.onerror = function () {
+								callback(this.error);
+							};
+						},
+						function(file, callback){
+							var request = file.getFile();
+
+							request.onsuccess = function(){
+								callback(null, controller.fileReader.readAsDataURL(this.result));
+							};
+
+							request.onerror = function(){
+								callback(this.error);
+							};
+						}
+					],
+					function(error, fileURL){
+						if(!error){
+							app.audio.waveSurfer.load(fileURL);
+						}else{
+
+						}
+					}
+				);
+			}
 		},
 
 		log: function(args, type) {
@@ -190,6 +351,11 @@ navigator.sayswho= (function(){
 				audioStream: undefined
 			};
 
+			this.audio = {
+				waveSurfer: Object.create(WaveSurfer),
+				init: false
+			};
+
 			Object.defineProperties(this.Mic, {
 				currentRecordName: {
 					get: function () {
@@ -223,16 +389,6 @@ navigator.sayswho= (function(){
 		 */
 		bindEvents: function(){
 			window.addEventListener('DOMContentLoaded', controller.domLoaded);
-
-			$('#micBtn').hammer().bind('tap', function(){
-				if(app.Mic.waveMic.active){
-					app.Mic.waveMic.stop();
-					controller.stopRecording();
-				}else{
-					window.console.info('Start Microphone');
-					app.Mic.waveMic.start();
-				}
-			});
 
 			/* Microphone Events */
 			this.Mic.waveMic.on('deviceReady', function(stream) {

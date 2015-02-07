@@ -1,6 +1,6 @@
 {
   "version": "0.0.1",
-  "name": "Mic",
+  "name": "RecordIt",
   "description": "A Record Audio App",
   "launch_path": "/index.html",
   "icons": {
