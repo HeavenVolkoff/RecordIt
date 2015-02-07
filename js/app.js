@@ -6,15 +6,13 @@
 		 * DOMContentLoaded Listener
 		 */
 
-		reader: new window.FileReader(),
-
 		domLoaded: function() {
 			/*SideBar init*/
 			$(".button-collapse").sideNav();
 			$('.collapsible').collapsible();
 
 			/* WaveForm init */
-			app.Microfone.waveSurfer.init({
+			app.Mic.waveSurfer.init({
 				container     : '#waveform',
 				waveColor     : '#080808',
 				interact      : false,
@@ -22,129 +20,153 @@
 			});
 
 			/* WaveForm Mic Plugin Init */
-			app.Microfone.waveMic.init({
-				wavesurfer: app.Microfone.waveSurfer
+			app.Mic.waveMic.init({
+				wavesurfer: app.Mic.waveSurfer
 			});
 		},
 
 		startRecording: function(stream){
 			/* Recorder Init */
-			app.Microfone.recorder = new MediaStreamRecorder(stream);
-			app.Microfone.recorder.mimeType = app.audioType;
-			app.Microfone.recorder.ondataavailable = this.audioData;
-			app.Microfone.recorder.start(160000);
+			app.Mic.recorder = new MediaStreamRecorder(stream);
+			app.Mic.recorder.mimeType = app.audioType;
+			app.Mic.recorder.ondataavailable = this.audioData;
+			app.Mic.recorder.start(160000);
 
 			$('#micBtn').find('i').removeClass("mdi-av-mic").addClass('mdi-av-mic-off');
 			$('.record-text').text('Recording...');
 		},
 
-		audioData: function(blob){
-			var noRecords = $('.noRecords');
+		audioData: function(chunk){
+			if(app.sdCard){
+				async.waterfall(
+					[
+						function(callback){
+							if(typeof app.Mic.currentRecord === 'undefined'){
+								var request = app.sdCard.addNamed(chunk, app.folderName + app.Mic.currentRecordName);
 
-			async.waterfall(
-				[
-					function(callback){
-						if(typeof app.Microfone.currentRecord === 'undefined'){
-							var fileRequest = app.sdCard.getEditable(app.Microfone.currentRecordName);
+								request.onsuccess = function(){
+									window.console.log('File "' + this.result.name + '" successfully wrote on the sdcard storage area');
+									app.Mic.currentRecord = this.result.open('readwrite');
+									callback(null, null);
 
-							fileRequest.onsuccess = function(fileHandler){
-								app.Microfone.currentRecord = fileHandler.open('readwrite');
-								callback(null, app.Microfone.currentRecord);
-							};
+								};
 
-							fileRequest.onerror = function(){
-								app.sdCard.addNamed(blob, app.folderName + app.Microfone.currentRecordName);
-								callback(null, null);
-							};
-						}else{
-							callback(null, app.Microfone.currentRecord);
-						}
-					},
-					function(record, callback){
-						if(record){
-							if(record.active){
-								var writeHandler = app.Microfone.currentRecord.append(blob);
-
-								writeHandler.onProgress(function(status){
-									console.log('Appending audio chunk to file.\n Chunk size: ' + status.total + ' bytes, already saved: ' + status.loaded + ' bytes');
-								});
-
-								writeHandler.onsuccess(function(){
-									callback();
-								});
-
-								writeHandler.onerror(function(){
+								request.onerror = function(){
+									window.console.error('Unable to write the file: ' + this.error);
 									callback(this.error);
-								});
+								};
+							}else{
+								callback(null, app.Mic.currentRecord, true);
 							}
-						}else{
-							callback();
+						},
+						function(record, callback){
+							if(record){
+								if(record.active){
+									var writeHandler = app.Mic.currentRecord.append(chunk);
+
+									writeHandler.onProgress(function(status){
+										window.console.log('Appending audio chunk to file.\n Chunk size: ' + status.total + ' bytes, already saved: ' + status.loaded + ' bytes');
+									});
+
+									writeHandler.onsuccess(function(){
+										window.console.log('Finish appending audio to file');
+										callback();
+									});
+
+									writeHandler.onerror(function(){
+										callback(this.error);
+									});
+								}
+							}else{
+								callback();
+							}
+						}
+					],
+					function(error){
+						if(error){
+							window.console.trace();
+							window.console.error(error);
+
+							controller.stopRecording(error);
 						}
 					}
-				]
-			);
-
-			controller.reader.onloadend = function() {
-				var audioURL = controller.reader.result;
-
-				console.log(audioURL);
-
-				if(){
-
-				}else{
-					ConcatenateBlobs([currentRecord.attr('src'), blob], app.audioType, function(concatenated) {
-						currentRecord.attr('src', concatenated);
-					});
-				}
-			};
-			controller.reader.readAsDataURL(blob);
+				);
+			}
 		},
 
 		stopRecording: function(error){
-			app.Microfone.recorder.stop();
+			app.Mic.recorder.stop();
+			delete app.Mic.currentRecord;
+			app.Mic.currentRecord = undefined;
+
 			$('#micBtn').find('i').removeClass('mdi-av-mic-off').addClass("mdi-av-mic");
 			$('.record-text').text('Record Stopped');
 
 			var changeRecordText = setTimeout(function(){
 				$('.record-text').text('Start Record');
 			}, 1000);
+		},
+
+		log: function(args, type) {
+			if(typeof app.console !== 'undefined' && app.debug){
+				if(app.console.hasOwnProperty(type)){
+					app.console[type].apply(app.console, args);
+				}else{
+					if(args.length > 1){
+						app.console.log.apply(app.console, args);
+					}else if(args.length === 1 && typeof args[0] !== 'undefined' && args[0] !== null && args[0] !== ''){
+						app.console.log.apply(app.console, args);
+					}
+				}
+			}
 		}
 	};
 
 	var app = {
-		sdCard: navigator.getDeviceStorage("sdcard"),
+		sdCard: typeof navigator.getDeviceStorage !== 'undefined'? navigator.getDeviceStorage("sdcard") : undefined,
 
 		folderName: 'records/',
 
 		audioType: 'audio/ogg',
 
-		today: new Date(),
+		debug: true,
+
+		console: window.console,
 
 		/**
 		 * Initialize App Base Function
 		 */
 		initialize: function(){
-			this.Microfone = {
+			window.console = {
+				__noSuchMethod__: function(id, args){
+					controller.log(args, id);
+				}
+			};
+
+			this.Mic = {
 				waveSurfer: Object.create(WaveSurfer),
 				waveMic: Object.create(WaveSurfer.Microphone),
 				recorder: undefined,
 				currentRecord: null,
 			};
 
-			Object.defineProperties(this.Microfone, {
+			Object.defineProperties(this.Mic, {
 				currentRecordName: {
 					get: function () {
-						return 'record-' + app.today.getDate() + '-' +
-							app.today.getMonth() + 1 + '-' +
-							app.today.getYear() + '-' +
-							app.today.getHours() + '-' +
-							app.today.getMinutes() + '-' +
-							app.today.getSeconds() + '.ogg';
+						var now = new Date();
+
+						return 'record-' +
+							now.getDate() + '-' +
+							now.getMonth()+1 + '-' +
+							now.getYear() + '-' +
+							now.getHours() + '-' +
+							now.getMinutes() + '-' +
+							now.getSeconds() + '.ogg';
 					}
 				},
 				recording: {
 					get: function(){
-						if(app.Microfone.recorder){
+						if(app.Mic.recorder){
 
 						}else{
 							return false;
@@ -163,22 +185,22 @@
 			window.addEventListener('DOMContentLoaded', controller.domLoaded);
 
 			$('#micBtn').hammer().bind('tap', function(){
-				if(app.Microfone.waveMic.active){
-					app.Microfone.waveMic.stop();
+				if(app.Mic.waveMic.active){
+					app.Mic.waveMic.stop();
 					controller.stopRecording();
 				}else{
-					console.info('Start Microphone');
-					app.Microfone.waveMic.start();
+					window.console.info('Start Microphone');
+					app.Mic.waveMic.start();
 				}
 			});
 
 			/* Microphone Events */
-			this.Microfone.waveMic.on('deviceReady', function(stream) {
-				console.info('Device ready and Streaming');
+			this.Mic.waveMic.on('deviceReady', function(stream) {
+				window.console.info('Device ready and Streaming');
 				controller.startRecording(stream);
 			});
-			this.Microfone.waveMic.on('deviceError', function(code) {
-				console.warn('Device error: ' + code);
+			this.Mic.waveMic.on('deviceError', function(code) {
+				window.console.warn('Device error: ' + code);
 			});
 		}
 	};
