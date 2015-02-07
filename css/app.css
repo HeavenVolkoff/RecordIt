@@ -155,6 +155,10 @@ header, main, footer {
 }
 /*=================== Common CSS =====================*/
 
+body{
+    background-color: #fefefe;
+}
+
 a.button-collapse.top-nav.full {
     line-height: 55px;
 }
@@ -197,4 +201,9 @@ ul.side-nav.fixed li {
 
 #waveform > *{
     overflow: hidden !important;
+}
+
+.card-title{
+    font-weight: 500 !important;
+    padding-bottom: 0 !important;
 }

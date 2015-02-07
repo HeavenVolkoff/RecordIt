@@ -13,7 +13,7 @@
 			/* WaveForm init */
 			app.Microfone.waveSurfer.init({
 				container     : '#waveform',
-				waveColor     : 'black',
+				waveColor     : '#080808',
 				interact      : false,
 				cursorWidth   : 0
 			});

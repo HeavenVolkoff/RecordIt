@@ -53,12 +53,12 @@
         <link rel="prefetch" type="application/l10n" href="data/locales.ini" />
         <script type="text/javascript" src="js/libs/l10n.js" defer></script>
     </head>
-    <body class="red darken-4">
+    <body>
         <!--<section class="mainScreen"><img src="img/SplashScreen/splash.png" alt="splashscreen"/></section>-->
 
         <header>
             <!--NavBar-->
-            <nav class="top-nav red darken-2 waves-effect waves-light">
+            <nav class="top-nav amber darken-4 waves-effect waves-light">
                 <div class="container">
                     <div class="nav-wrapper center-align">
                         <a class="page-title">Mic</a>
@@ -70,7 +70,7 @@
                 <a href="#" data-activates="slide-out" class="button-collapse top-nav full"><i class="mdi-navigation-menu"></i></a>
             </div>
 
-            <ul id="slide-out" class="side-nav fixed red darken-2 collection with-header">
+            <ul id="slide-out" class="side-nav fixed amber darken-4 collection with-header">
                 <li class="logo">
                     <i class="circle white mdi-av-mic large"></i>
                 </li>
@@ -84,7 +84,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col s12">
-                        <div class="card">
+                        <div class="card deep-orange lighten-5">
                             <div class="card-image">
                                 <div id="waveform"></div>
                                 <span class="card-title record-text">Start Recording</span>
@@ -93,17 +93,17 @@
                                 TimeLine
                             </div>
                             <div class="card-action center-align">
-                                <a class="btn-floating btn-large waves-effect waves-light red margin-zero" id="micBtn"><i class="mdi-av-mic"></i></a>
+                                <a class="btn-floating btn-large waves-effect waves-light red darken-3 margin-zero" id="micBtn"><i class="mdi-av-mic"></i></a>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <ul class="collection with-header records">
-                <li class="collection-header"><h4>Audios Recorded:</h4></li>
-                <li class="collection-item noRecords"><div>No Records Yet...</div></li>
-            </ul>
+                <ul class="collection with-header records col s11 offset-s1">
+                    <li class="collection-header"><h4>Audios Recorded:</h4></li>
+                    <li class="collection-item noRecords"><div>No Records Yet...</div></li>
+                </ul>
+            </div>
         </main>
     </body>
 </html>
