@@ -1,7 +1,29 @@
+/**
+ * Get Browser name
+ * @link: http://stackoverflow.com/questions/2400935/browser-detection-in-javascript
+ */
+navigator.sayswho= (function(){
+	var ua= navigator.userAgent, tem,
+		M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+	if(/trident/i.test(M[1])){
+		tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+		return 'IE '+(tem[1] || '');
+	}
+	if(M[1]=== 'Chrome'){
+		tem= ua.match(/\b(OPR|Edge)\/(\d+)/);
+		if(tem!= null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+	}
+	M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+	if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+	return M;
+})();
+
 (function(){
 	'use strict';
 
 	var controller = {
+		changeText: null,
+
 		/**
 		 * DOMContentLoaded Listener
 		 */
@@ -16,7 +38,9 @@
 				container     : '#waveform',
 				waveColor     : '#080808',
 				interact      : false,
-				cursorWidth   : 0
+				cursorWidth   : 0,
+				pixelRatio: 1,
+				height: 215
 			});
 
 			/* WaveForm Mic Plugin Init */
@@ -26,8 +50,14 @@
 		},
 
 		startRecording: function(stream){
+			if(this.changeText){
+				window.clearTimeout(this.changeText);
+			}
+
+			app.Mic.audioStream = stream;
+
 			/* Recorder Init */
-			app.Mic.recorder = new MediaStreamRecorder(stream);
+			app.Mic.recorder = new MediaStreamRecorder(app.Mic.audioStream);
 			app.Mic.recorder.mimeType = app.audioType;
 			app.Mic.recorder.ondataavailable = this.audioData;
 			app.Mic.recorder.start(160000);
@@ -91,20 +121,27 @@
 						}
 					}
 				);
+			}else{
+				window.console.log(chunk);
 			}
 		},
 
 		stopRecording: function(error){
-			app.Mic.recorder.stop();
 			delete app.Mic.currentRecord;
+			delete app.Mic.audioStream;
+
 			app.Mic.currentRecord = undefined;
+			app.Mic.audioStream = undefined;
+
+			app.Mic.waveSurfer.empty();
 
 			$('#micBtn').find('i').removeClass('mdi-av-mic-off').addClass("mdi-av-mic");
 			$('.record-text').text('Record Stopped');
 
-			var changeRecordText = setTimeout(function(){
-				$('.record-text').text('Start Record');
-			}, 1000);
+			this.changeText = setTimeout(function(){
+				controller.changeText = null;
+				$('.record-text').text('Start Recording');
+			}, 2000);
 		},
 
 		log: function(args, type) {
@@ -137,17 +174,20 @@
 		 * Initialize App Base Function
 		 */
 		initialize: function(){
-			window.console = {
-				__noSuchMethod__: function(id, args){
-					controller.log(args, id);
-				}
-			};
+			if(navigator.sayswho[0].toLowerCase() === 'firefox'){
+				window.console = {
+					__noSuchMethod__: function(id, args){
+						controller.log(args, id);
+					}
+				};
+			}
 
 			this.Mic = {
 				waveSurfer: Object.create(WaveSurfer),
 				waveMic: Object.create(WaveSurfer.Microphone),
 				recorder: undefined,
-				currentRecord: null,
+				currentRecord: undefined,
+				audioStream: undefined
 			};
 
 			Object.defineProperties(this.Mic, {

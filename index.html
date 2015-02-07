@@ -58,13 +58,18 @@
 
         <header>
             <!--NavBar-->
-            <nav class="top-nav amber darken-4 waves-effect waves-light">
-                <div class="container">
-                    <div class="nav-wrapper center-align">
-                        <a class="page-title">Mic</a>
+
+            <div class="navbar-fixed" style="height: 0">
+                <nav class="amber darken-4 waves-effect waves-light">
+                    <div class="nav-wrapper">
+                        <div class="container">
+                            <div class="nav-wrapper center-align">
+                                <a class="page-title">Mic</a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </nav>
+                </nav>
+            </div>
 
             <div class="container">
                 <a href="#" data-activates="slide-out" class="button-collapse top-nav full"><i class="mdi-navigation-menu"></i></a>
@@ -81,10 +86,10 @@
         </header>
 
         <main>
-            <div class="container">
-                <div class="row">
+            <div class="container row valign-wrapper record-container">
+                <div class="col s12 row valign">
                     <div class="col s12">
-                        <div class="card deep-orange lighten-5">
+                        <div class="card deep-orange lighten-5" id="record">
                             <div class="card-image">
                                 <div id="waveform"></div>
                                 <span class="card-title record-text">Start Recording</span>
@@ -98,11 +103,6 @@
                         </div>
                     </div>
                 </div>
-
-                <ul class="collection with-header records col s11 offset-s1">
-                    <li class="collection-header"><h4>Audios Recorded:</h4></li>
-                    <li class="collection-item noRecords"><div>No Records Yet...</div></li>
-                </ul>
             </div>
         </main>
     </body>
