@@ -16,6 +16,9 @@
   "permissions": {
     "audio-capture": {
       "description": "Required to capture audio via getUserMedia"
+    },
+    "device-storage:sdcard": {
+      "access":  "readwrite"
     }
   },
   "installs_allowed_from": ["*"]

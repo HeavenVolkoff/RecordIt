@@ -159,14 +159,28 @@ navigator.sayswho= (function(){
 				async.waterfall(
 					[
 						function(callback){
+							window.console.log(app.Mic.currentRecord);
 							if(typeof app.Mic.currentRecord === 'undefined'){
-								var request = app.sdCard.addNamed(chunk, app.folderName + app.Mic.currentRecordName);
+								var name = app.Mic.currentRecordName;
+
+								window.console.log('Trying to write file, name: ' + app.folderName + name );
+								window.console.log(chunk);
+								var request = app.sdCard.addNamed(chunk, app.folderName + name);
 
 								request.onsuccess = function(){
-									window.console.log('File "' + this.result.name + '" successfully wrote on the sdcard storage area');
-									app.Mic.currentRecord = this.result.open('readwrite');
-									callback(null, null);
+									window.console.log('File ' + name + ' successfully wrote on the sdcard storage area');
 
+									var request = app.sdCard.getEditable(app.folderName + name);
+
+									request.onsucess = function(){
+										app.Mic.currentRecord = this.result.open('readwrite');
+										callback(null, null);
+									};
+
+									request.onerror = function(){
+										window.console.error('Unable to open the file: ' + this.error);
+										callback(this.error);
+									};
 								};
 
 								request.onerror = function(){
@@ -261,10 +275,10 @@ navigator.sayswho= (function(){
 					app.audio.init = true;
 				}
 
-				window.console.log('#'+fileName+'-wave');
+				window.console.log(fileName);
 
 				app.audio.waveSurfer.init({
-					container     : '#'+fileName+'-wave',
+					container     : window[fileName+'-wave'],
 					waveColor     : '#080808',
 					pixelRatio: 1
 				});
@@ -273,19 +287,27 @@ navigator.sayswho= (function(){
 					[
 						function(callback){
 							var fileHandler = app.sdCard.getEditable(app.folderName + fileName);
+							window.console.log('Got File Handler');
 
 							fileHandler.onsuccess = function(){
+								window.console.log('sucess, get file');
+								window.console.log(this.result);
 								callback(null, this.result);
 							};
 
 							fileHandler.onerror = function () {
+								window.console.log('Error dont got handler');
 								callback(this.error);
 							};
 						},
 						function(file, callback){
+							window.console.log('now trying to get file as URLData');
+							window.console.log(file);
 							var request = file.getFile();
 
 							request.onsuccess = function(){
+								window.console.log(this.result);
+								window.console.log('got File as url');
 								callback(null, controller.fileReader.readAsDataURL(this.result));
 							};
 
@@ -295,11 +317,15 @@ navigator.sayswho= (function(){
 						}
 					],
 					function(error, fileURL){
+						window.console.log('URL: ' + fileURL);
 						if(!error){
 							app.audio.waveSurfer.load(fileURL);
 						}else{
-
+							window.console.trace();
+							window.console.error(error);
 						}
+
+						self.find('.loading').remove();
 					}
 				);
 			}
@@ -335,7 +361,7 @@ navigator.sayswho= (function(){
 		 * Initialize App Base Function
 		 */
 		initialize: function(){
-			if(navigator.sayswho[0].toLowerCase() === 'firefox'){
+			if(navigator.sayswho[0].toLowerCase() === 'firefox' && false){
 				window.console = {
 					__noSuchMethod__: function(id, args){
 						controller.log(args, id);
