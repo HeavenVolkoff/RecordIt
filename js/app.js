@@ -7,7 +7,7 @@
 		 */
 		domLoaded: function() {
 			/*SideBar init*/
-			$(".button-collapse").sideNav({edge: 'left'});
+			$(".button-collapse").sideNav();
 			$('.collapsible').collapsible();
 
 			/* WaveForm init */
