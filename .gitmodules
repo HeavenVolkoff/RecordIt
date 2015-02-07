@@ -4,9 +4,6 @@
 [submodule "js/libs/WaveSufer"]
 	path = js/libs/WaveSufer
 	url = https://github.com/katspaugh/wavesurfer.js
-[submodule "js/libs/RecordRTC"]
-	path = js/libs/RecordRTC
-	url = https://github.com/muaz-khan/RecordRTC.git
 [submodule "js/libs/Async"]
 	path = js/libs/Async
 	url = https://github.com/caolan/async.git
@@ -16,3 +13,6 @@
 [submodule "js/libs/Hammer.jQuery"]
 	path = js/libs/Hammer.jQuery
 	url = https://github.com/hammerjs/jquery.hammer.js
+[submodule "js/libs/MSR"]
+	path = js/libs/MSR
+	url = https://github.com/streamproc/MediaStreamRecorder.git
